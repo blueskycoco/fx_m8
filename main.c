@@ -73,8 +73,9 @@ static uint8_t uart_read() {
  * @return CRC value
  */
 inline uint8_t crc8_update(uint8_t data, uint8_t crc) {
+    uint8_t i;
     crc ^= data;
-    for (uint8_t i = 0; i < 8; i++)
+    for (i = 0; i < 8; i++)
         crc = (crc & 0x80) ? (crc << 1) ^ 0x07 : crc << 1;
     return crc;
 }
@@ -101,8 +102,9 @@ inline void serial_send_nack() {
  * @param dest destination buffer
  */
 static void serial_read_block(uint8_t *dest) {
-    serial_send_ack();
-    for (uint8_t i = 0; i < BLOCK_SIZE; i++) {
+	uint8_t i;
+	serial_send_ack();
+    for (i = 0; i < BLOCK_SIZE; i++) {
         uint8_t rx = uart_read();
         dest[i] = rx;
         CRC = crc8_update(rx, CRC);
@@ -115,6 +117,7 @@ static void serial_read_block(uint8_t *dest) {
 inline void bootloader_exec() {
     uint8_t chunks, crc_rx;
     uint16_t addr = BOOT_ADDR;
+	uint8_t i;
 
     /* enter bootloader */
     for (;;) {
@@ -150,7 +153,7 @@ inline void bootloader_exec() {
     while (!(FLASH_IAPSR & (1 << FLASH_IAPSR_PUL)));
 
     /* get main firmware */
-    for (uint8_t i = 0; i < chunks; i++) {
+    for (i = 0; i < chunks; i++) {
         serial_read_block(rx_buffer);
         flash_write_block(addr, rx_buffer);
         addr += BLOCK_SIZE;
@@ -184,8 +187,9 @@ inline void bootloader_exec() {
  * Copy ram_flash_write_block routine into RAM
  */
 inline void ram_cpy() {
+    uint8_t i;
     get_ram_section_length();
-    for (uint8_t i = 0; i < RAM_SEG_LEN; i++)
+    for (i = 0; i < RAM_SEG_LEN; i++)
         f_ram[i] = ((uint8_t *) ram_flash_write_block)[i];
 }
 
